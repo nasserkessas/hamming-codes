@@ -31,7 +31,7 @@ void printBlock(block i) {
     size_t current_bit = size;
 
     char * str = malloc(size + 1);
-    if(!str) return NULL;
+    if(!str) return;
     str[size] = 0;
 
     unsigned u = *(unsigned *)&i;
