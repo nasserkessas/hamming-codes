@@ -8,26 +8,45 @@
 int decode(block input[]);
 void printBlock(block i);
 bit getBit(block b, int i);
+int multipleXor(int *indicies, int len);
 
 int main () {
-    block bits = 0b0010101110001110;
+    block bits = 0b1100111011110110;
     block input[1]  = {bits};
     decode(input);
     return 0;
 }
 
 int decode(block input[] ) {
+    int bits = sizeof(block) * 8;
     printBlock(input[0]);
-    int index = 0;
-    printf("%d\n", getBit(input[0], index));
+    int onCount = 0;
+    int onList[bits];
+    for (int i = 1; i < bits; i++) {
+	getBit(input[0], i);
+	if (getBit(input[0], i)) {
+            onList[onCount] = i;
+	    onCount++;
+	}
+    }
+
+    printf("%d\n", multipleXor(onList, onCount));
+}
+
+int multipleXor(int *indicies, int len) {
+    int val = indicies[0];
+    for (int i = 1; i < len; i++) {
+	val = val ^ indicies[i];
+    }
+    return val;
 }
 
 bit getBit(block b, int i) {
-    return (b >> i) & 1;
+    return (b << i) & 0b1000000000000000;
 }
 
 void printBlock(block i) {
-    size_t size = sizeof(short) * sizeof(char) * 8;
+    size_t size = sizeof(block) * sizeof(char) * 8;
     size_t current_bit = size;
 
     char * str = malloc(size + 1);
