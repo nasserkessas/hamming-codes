@@ -3,7 +3,11 @@
 Work in progress
 
 ## Build
+```sh
 gcc -o hamming hamming.c
+```
 
 ## Run
+```sh
 ./hamming
+```
