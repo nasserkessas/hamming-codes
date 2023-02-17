@@ -37,12 +37,4 @@ void printBlock(block i) {
             putchar('\n');
         }
     }
-
-    // for (int i = 0; i < sizeof(block)*2; i+=4) {
-    //     for (int j=0; i<4; j++) {
-    //         putchar(str[i+j]);
-    //     }
-    //     putchar('\n');
-
-    // }
 }
