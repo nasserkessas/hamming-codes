@@ -8,7 +8,7 @@
 #define bit bool             // 8 bits (only last is used)
 
 // Function prototypes
-int decode(block input[]);               // Function used to decode Hamming code
+void decode(block input[]);               // Function used to decode Hamming code
 void printBlock(block i);                // Function used to pretty print a block
 bit getBit(block b, int i);              // Function used to get a specific bit of a block
 block toggleBit(block b, int i);         // Function used to toggle a specific bit of a block
@@ -25,7 +25,7 @@ int main () {
     return 0;
 }
 
-int decode(block input[] ) {
+void decode(block input[] ) {
 
     // Amount of bits in a block
     int bits = sizeof(block) * 8;
@@ -56,7 +56,7 @@ int decode(block input[] ) {
         // Check for multiple errors //
         if (!(onCount & 1 ^ getBit(input[0], 0))) { // last bit of onCount (total parity) XOR first bit of block (parity bit)
             printf("\nMore than one error detected. Aborting.\n");
-            return 1;
+            exit(1);
         }
         
         // Flip error bit //
