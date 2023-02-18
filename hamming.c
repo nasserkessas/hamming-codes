@@ -8,10 +8,11 @@
 int decode(block input[]);
 void printBlock(block i);
 bit getBit(block b, int i);
+block toggleBit(block b, int i);
 int multipleXor(int *indicies, int len);
 
 int main () {
-    block bits = 0b1100111011110110;
+    block bits = 0b1100101011110111; // Last bit flipped for testing
     block input[1]  = {bits};
     decode(input);
     return 0;
@@ -20,29 +21,45 @@ int main () {
 int decode(block input[] ) {
     int bits = sizeof(block) * 8;
     printBlock(input[0]);
+
     int onCount = 0;
     int onList[bits];
     for (int i = 1; i < bits; i++) {
 	getBit(input[0], i);
 	if (getBit(input[0], i)) {
-            onList[onCount] = i;
+        onList[onCount] = i;
 	    onCount++;
-	}
+	    }
     }
 
-    printf("%d\n", multipleXor(onList, onCount));
+    int errorLoc = multipleXor(onList, onCount);
+
+    if (errorLoc) {
+        if (!(onCount & 1 ^ getBit(input[0], 0))) { // last bit of onCount (total parity) XOR first bit of block (parity bit)
+            printf("\nMore than one error detected. Aborting.\n");
+            return 1;
+        } else {
+            printf("\nDetected error at position %d, flipping bit.\n", errorLoc);
+            input[0] = toggleBit(input[0], (bits-1) - errorLoc);
+            printBlock(input[0]);
+        }
+    }
 }
 
 int multipleXor(int *indicies, int len) {
     int val = indicies[0];
     for (int i = 1; i < len; i++) {
-	val = val ^ indicies[i];
+	    val = val ^ indicies[i];
     }
     return val;
 }
 
 bit getBit(block b, int i) {
     return (b << i) & 0b1000000000000000;
+}
+
+block toggleBit(block b, int i) {
+    return b ^ (1 << i);
 }
 
 void printBlock(block i) {
