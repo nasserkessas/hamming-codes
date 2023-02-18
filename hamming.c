@@ -2,28 +2,43 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define block unsigned short
-#define bit bool
+// Definitions
+#define block unsigned short // 16 bits
+#define bit bool             // 8 bits (only last is used)
 
-int decode(block input[]);
-void printBlock(block i);
-bit getBit(block b, int i);
-block toggleBit(block b, int i);
-int multipleXor(int *indicies, int len);
+// Function prototypes
+int decode(block input[]);               // Function used to decode Hamming code
+void printBlock(block i);                // Function used to pretty print a block
+bit getBit(block b, int i);              // Function used to get a specific bit of a block
+block toggleBit(block b, int i);         // Function used to toggle a specific bit of a block
+int multipleXor(int *indicies, int len); // Function used to XOR all the elements of a list together (used to locate error)
+
 
 int main () {
+    // Will change to file input in future //
     block bits = 0b1100101011110111; // Last bit flipped for testing
-    block input[1]  = {bits};
+    block input[1]  = {bits}; // express input as an array of blocks
+    
     decode(input);
+    
     return 0;
 }
 
 int decode(block input[] ) {
+
+    // Amount of bits in a block
     int bits = sizeof(block) * 8;
+
+    // Print initial block //
     printBlock(input[0]);
 
+    // Count of how many bits are "on"
     int onCount = 0;
+    
+    // Array of "on" bits
     int onList[bits];
+
+    // Populate onCount and onList
     for (int i = 1; i < bits; i++) {
 	getBit(input[0], i);
 	if (getBit(input[0], i)) {
@@ -32,15 +47,23 @@ int decode(block input[] ) {
 	    }
     }
 
+    // Check for single errors //
     int errorLoc = multipleXor(onList, onCount);
 
     if (errorLoc) {
+        
+        // Check for multiple errors //
         if (!(onCount & 1 ^ getBit(input[0], 0))) { // last bit of onCount (total parity) XOR first bit of block (parity bit)
             printf("\nMore than one error detected. Aborting.\n");
             return 1;
-        } else {
+        }
+        
+        // Flip error bit //
+        else {
             printf("\nDetected error at position %d, flipping bit.\n", errorLoc);
             input[0] = toggleBit(input[0], (bits-1) - errorLoc);
+            
+            // Re-print block for comparison //
             printBlock(input[0]);
         }
     }
