@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 
 // Definitions
 #define block unsigned short // 16 bits
@@ -78,7 +79,7 @@ int multipleXor(int *indicies, int len) {
 }
 
 bit getBit(block b, int i) {
-    return (b << i) & 0b1000000000000000;
+    return (b << i) & (int) pow(2, (sizeof(block)*8-1));
 }
 
 block toggleBit(block b, int i) {
