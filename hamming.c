@@ -15,7 +15,7 @@ void printBlock(block i);                // Function used to pretty print a bloc
 bit getBit(block b, int i);              // Function used to get a specific bit of a block
 block toggleBit(block b, int i);         // Function used to toggle a specific bit of a block
 block modifyBit(block n, int p, bit b);  // Function used to modify a bit to a specific value
-int multipleXor(int *indicies, int len); // Function used to XOR all the elements of a list together (used to locate error)
+int multipleXor(int *indicies, int len); // Function used to XOR all the elements of a list together (used to locate error and determine values of parity bits)
 
 
 int main () {
@@ -30,7 +30,7 @@ int main () {
     
     // Encode test //
 
-    largeBlock bits = 0b00101110101;
+    largeBlock bits = 0b00101110101; // Ensures first parity bit is a 1
     
     encode(bits, 11);
     
@@ -38,62 +38,91 @@ int main () {
 }
 
 void encode(largeBlock input, int len) {
-    int bits = sizeof(block) * 8;
-    int messageBits = bits - log2(bits) - 1;
-    int blocks = len / messageBits;
 
+    // Amount of bits in a block //
+    int bits = sizeof(block) * 8;
+
+    // Amount of bits per block used to carry the message //
+    int messageBits = bits - log2(bits) - 1;
+
+    // Amount of blocks needed to encode message //
+    int blocks = ceil(len / messageBits);
+
+    // Loop through each block //
     for (int i = 0; i < blocks; i++) {
+        
+        // Get message bits for this block //
         block thisMsg = ((input & ((((int) pow(2, messageBits)-1) << ((blocks-1)*messageBits)) >> (i*messageBits))) >> ((blocks-i-1)*messageBits)) << (bits - messageBits);
 
+        // Final encoded block variable //
         block thisBlock = 0;
+        
+        // Amount of "skipped" bits (used for parity) //
         int skipped = 0;
+
+        // Count of how many bits are "on" //
         int onCount = 0;
+        
+        // Array of "on" bits //
         int onList[bits];
 
+        // Loop through each message bit in this block to populate final block //
         for (int j = 0; j < bits; j++) {
+            
+            // Skip bit if reserved for parity bit //
             if ((j & (j - 1)) == 0) { // Check if j is a power of two or 0
                 skipped++;
                 continue;
             }
-            
+
+            // If bit is "on", add to onList and onCount //
             if (getBit(thisMsg, j-skipped)) {
                 onList[onCount] = j-skipped;
                 onCount++;
             }
-
+            
+            // Populate final message block //
             thisBlock = modifyBit(thisBlock, j, getBit(thisMsg, j-skipped));
         }
 
+        // Calculate values of parity bits //
         block parityBits = multipleXor(onList, onCount);
-    
+
+        // Loop through skipped bits (parity bits) //
         for (int k = 1; k < skipped; k++) { // skip bit 0
+
+            // If bit is "on", add to onCount
             if (getBit(parityBits, sizeof(block)*8-skipped+k)) {
                 onCount++;
             }
+
+            // Add parity bit to final block //
             thisBlock = modifyBit(thisBlock, (int) pow(2,k-1) , getBit(parityBits, sizeof(block)*8-skipped+k));
         }
 
+        // Add overall parity bit (total parity of onCount) //
         thisBlock = modifyBit(thisBlock, 0, onCount & 1);
 
+        // Output final block //
         printBlock(thisBlock);
     }
 }
 
 void decode(block input[]) {
 
-    // Amount of bits in a block
+    // Amount of bits in a block //
     int bits = sizeof(block) * 8;
 
     // Print initial block //
     printBlock(input[0]);
 
-    // Count of how many bits are "on"
+    // Count of how many bits are "on" //
     int onCount = 0;
     
-    // Array of "on" bits
+    // Array of "on" bits //
     int onList[bits];
 
-    // Populate onCount and onList
+    // Populate onCount and onList //
     for (int i = 1; i < bits; i++) {
 	getBit(input[0], i);
 	if (getBit(input[0], i)) {
