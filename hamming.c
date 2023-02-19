@@ -23,14 +23,15 @@ int main () {
 
     // Decode test //
 
-    // block bits = 0b1100101011110111; // Last bit flipped for testing
+    // block bits = 0b0100101011110111; // Last bit flipped for testing
     // block input[1]  = {bits}; // express input as an array of blocks
     
     // decode(input);
     
     // Encode test //
 
-    largeBlock bits = 0b00110001110;
+    largeBlock bits = 0b00101110101;
+    
     encode(bits, 11);
     
     return 0;
@@ -66,8 +67,13 @@ void encode(largeBlock input, int len) {
         block parityBits = multipleXor(onList, onCount);
     
         for (int k = 1; k < skipped; k++) { // skip bit 0
+            if (getBit(parityBits, sizeof(block)*8-skipped+k)) {
+                onCount++;
+            }
             thisBlock = modifyBit(thisBlock, (int) pow(2,k-1) , getBit(parityBits, sizeof(block)*8-skipped+k));
         }
+
+        thisBlock = modifyBit(thisBlock, 0, onCount & 1);
 
         printBlock(thisBlock);
     }
