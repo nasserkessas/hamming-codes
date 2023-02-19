@@ -4,28 +4,76 @@
 #include <math.h>
 
 // Definitions
-#define block unsigned short // 16 bits
-#define bit bool             // 8 bits (only last is used)
+#define block unsigned short    // 16 bits
+#define largeBlock unsigned int // 32 bits
+#define bit bool                // 8 bits (only last is used)
 
 // Function prototypes
-void decode(block input[]);               // Function used to decode Hamming code
+void decode(block input[]);              // Function used to decode Hamming code
+void encode(largeBlock input, int len);  // Function used to encode plaintext
 void printBlock(block i);                // Function used to pretty print a block
 bit getBit(block b, int i);              // Function used to get a specific bit of a block
 block toggleBit(block b, int i);         // Function used to toggle a specific bit of a block
+block modifyBit(block n, int p, bit b);  // Function used to modify a bit to a specific value
 int multipleXor(int *indicies, int len); // Function used to XOR all the elements of a list together (used to locate error)
 
 
 int main () {
     // Will change to file input in future //
-    block bits = 0b1100101011110111; // Last bit flipped for testing
-    block input[1]  = {bits}; // express input as an array of blocks
+
+    // Decode test //
+
+    // block bits = 0b1100101011110111; // Last bit flipped for testing
+    // block input[1]  = {bits}; // express input as an array of blocks
     
-    decode(input);
+    // decode(input);
+    
+    // Encode test //
+
+    largeBlock bits = 0b00110001110;
+    encode(bits, 11);
     
     return 0;
 }
 
-void decode(block input[] ) {
+void encode(largeBlock input, int len) {
+    int bits = sizeof(block) * 8;
+    int messageBits = bits - log2(bits) - 1;
+    int blocks = len / messageBits;
+
+    for (int i = 0; i < blocks; i++) {
+        block thisMsg = ((input & ((((int) pow(2, messageBits)-1) << ((blocks-1)*messageBits)) >> (i*messageBits))) >> ((blocks-i-1)*messageBits)) << (bits - messageBits);
+
+        block thisBlock = 0;
+        int skipped = 0;
+        int onCount = 0;
+        int onList[bits];
+
+        for (int j = 0; j < bits; j++) {
+            if ((j & (j - 1)) == 0) { // Check if j is a power of two or 0
+                skipped++;
+                continue;
+            }
+            
+            if (getBit(thisMsg, j-skipped)) {
+                onList[onCount] = j-skipped;
+                onCount++;
+            }
+
+            thisBlock = modifyBit(thisBlock, j, getBit(thisMsg, j-skipped));
+        }
+
+        block parityBits = multipleXor(onList, onCount);
+    
+        for (int k = 1; k < skipped; k++) { // skip bit 0
+            thisBlock = modifyBit(thisBlock, (int) pow(2,k-1) , getBit(parityBits, sizeof(block)*8-skipped+k));
+        }
+
+        printBlock(thisBlock);
+    }
+}
+
+void decode(block input[]) {
 
     // Amount of bits in a block
     int bits = sizeof(block) * 8;
@@ -76,6 +124,10 @@ int multipleXor(int *indicies, int len) {
 	    val = val ^ indicies[i];
     }
     return val;
+}
+
+block modifyBit(block n, int p, bit b) {
+    return ((n & ~(1 << (sizeof(block)*8-1-p))) | (b << (sizeof(block)*8-1-p)));
 }
 
 bit getBit(block b, int i) {
