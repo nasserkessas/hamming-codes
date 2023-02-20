@@ -31,6 +31,7 @@ int main () {
 
     putchar('\n');
 
+
     // Decode test //
 
     // Open file //
@@ -102,7 +103,7 @@ void encode(largeBlock input, int len, FILE *ptr) {
 
             // If bit is "on", add to onList and onCount //
             if (getBit(thisMsg, j-skipped)) {
-                onList[onCount] = j-skipped;
+                onList[onCount] = j;
                 onCount++;
             }
             
