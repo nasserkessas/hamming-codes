@@ -4,3 +4,6 @@
 
 # VS code config folder
 .vscode/
+
+# Hamming code files
+*.hm

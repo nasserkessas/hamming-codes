@@ -9,13 +9,13 @@
 #define bit bool                // 8 bits (only last is used)
 
 // Function prototypes
-void decode(block input[]);              // Function used to decode Hamming code
-void encode(largeBlock input, int len);  // Function used to encode plaintext
-void printBlock(block i);                // Function used to pretty print a block
-bit getBit(block b, int i);              // Function used to get a specific bit of a block
-block toggleBit(block b, int i);         // Function used to toggle a specific bit of a block
-block modifyBit(block n, int p, bit b);  // Function used to modify a bit to a specific value
-int multipleXor(int *indicies, int len); // Function used to XOR all the elements of a list together (used to locate error and determine values of parity bits)
+void decode(block input[]);                         // Function used to decode Hamming code
+void encode(largeBlock input, int len, FILE *ptr);  // Function used to encode plaintext
+void printBlock(block i);                           // Function used to pretty print a block
+bit getBit(block b, int i);                         // Function used to get a specific bit of a block
+block toggleBit(block b, int i);                    // Function used to toggle a specific bit of a block
+block modifyBit(block n, int p, bit b);             // Function used to modify a bit to a specific value
+int multipleXor(int *indicies, int len);            // Function used to XOR all the elements of a list together (used to locate error and determine values of parity bits)
 
 
 int main () {
@@ -32,12 +32,16 @@ int main () {
 
     largeBlock bits = 0b00101110101; // Ensures first parity bit is a 1
     
-    encode(bits, 11);
+    FILE *ptr;
+
+    ptr = fopen("test.hm","wb");
+
+    encode(bits, 11, ptr);
     
     return 0;
 }
 
-void encode(largeBlock input, int len) {
+void encode(largeBlock input, int len, FILE *ptr) {
 
     // Amount of bits in a block //
     int bits = sizeof(block) * 8;
@@ -47,6 +51,9 @@ void encode(largeBlock input, int len) {
 
     // Amount of blocks needed to encode message //
     int blocks = ceil(len / messageBits);
+
+    // Array of encoded blocks //
+    block encoded[blocks];
 
     // Loop through each block //
     for (int i = 0; i < blocks; i++) {
@@ -105,7 +112,13 @@ void encode(largeBlock input, int len) {
 
         // Output final block //
         printBlock(thisBlock);
+        
+        // Add block to encoded blocks //
+	    encoded[i] = thisBlock;
     }
+    
+    // Write encoded message to file //
+    fwrite(encoded, sizeof(block), blocks, ptr);
 }
 
 void decode(block input[]) {
