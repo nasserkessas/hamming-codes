@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <string.h>
+#include <unistd.h>
 
 // Definitions
 #define block unsigned short    // 16 bits
@@ -18,7 +20,55 @@ block modifyBit(block n, int p, bit b);             // Function used to modify a
 int multipleXor(int *indicies, int len);            // Function used to XOR all the elements of a list together (used to locate error and determine values of parity bits)
 
 
-int main () {
+int main (int argc, char **argv) {
+
+    char *path = argv[0];
+
+    if (argc == 1) {
+        return 1; // usage function later
+    }
+    
+    char *command = argv[1];
+
+    if (strcmp(command, "decode") == 0) {
+        
+        char filename[32] = "out.hm";
+
+        if (argv[2] != NULL) {
+            if (strcmp(argv[2], "-i") == 0) {
+                strcpy(filename, argv[3]);
+            }
+        }
+
+        if (access(filename, F_OK) != 0) { // File does not exist
+            printf("File \"%s\" does not exist. Aborting.\n", filename);
+            return 1;
+        }
+
+        printf("Decoding file \"%s\"\n", filename);
+
+        // Open file //
+        FILE *ptr = fopen(filename,"rb");
+
+        // Seek to end of file //
+        fseek(ptr, 0L, SEEK_END);
+
+        // Determine length of the file in bytes //
+        int sz = ftell(ptr);
+
+        // Go back to start of file //
+        rewind(ptr);
+
+        // Initialise hamming code input variable //
+        block input[sz];
+
+        // Read hamming code from file to variable //
+        fread(input, sizeof(block), sz/sizeof(block), ptr);    
+
+        decode(input);
+    }
+
+    return 0;
 
     // Encode test //
 
@@ -30,32 +80,6 @@ int main () {
     encode(bits, 11, wptr);
 
     putchar('\n');
-
-
-    // Decode test //
-
-    // Open file //
-    FILE *ptr = fopen("test.hm","rb");
-
-    // Seek to end of file //
-    fseek(ptr, 0L, SEEK_END);
-
-    // Determine length of the file in bytes //
-    int sz = ftell(ptr);
-    
-    // Go back to start of file //
-    rewind(ptr);
-
-    // Initialise hamming code input variable //
-    unsigned short input[sz];
-
-    // Read hamming code from file to variable //
-    fread(input, sizeof(block), sz/sizeof(block), ptr);
-	
-    // block bits = 0b0100101011110111; // Last bit flipped for testing
-    // block input[1]  = {bits}; // express input as an array of blocks
-    
-    decode(input);
     
     return 0;
 }
