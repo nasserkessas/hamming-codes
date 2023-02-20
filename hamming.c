@@ -19,24 +19,42 @@ int multipleXor(int *indicies, int len);            // Function used to XOR all 
 
 
 int main () {
-    // Will change to file input in future //
 
-    // Decode test //
-
-    // block bits = 0b0100101011110111; // Last bit flipped for testing
-    // block input[1]  = {bits}; // express input as an array of blocks
-    
-    // decode(input);
-    
     // Encode test //
 
     largeBlock bits = 0b00101110101; // Ensures first parity bit is a 1
+
+    // Open file for writing //
+    FILE *wptr = fopen("test.hm","wb");
+
+    encode(bits, 11, wptr);
+
+    putchar('\n');
+
+    // Decode test //
+
+    // Open file //
+    FILE *ptr = fopen("test.hm","rb");
+
+    // Seek to end of file //
+    fseek(ptr, 0L, SEEK_END);
+
+    // Determine length of the file in bytes //
+    int sz = ftell(ptr);
     
-    FILE *ptr;
+    // Go back to start of file //
+    rewind(ptr);
 
-    ptr = fopen("test.hm","wb");
+    // Initialise hamming code input variable //
+    unsigned short input[sz];
 
-    encode(bits, 11, ptr);
+    // Read hamming code from file to variable //
+    fread(input, sizeof(block), sz/sizeof(block), ptr);
+	
+    // block bits = 0b0100101011110111; // Last bit flipped for testing
+    // block input[1]  = {bits}; // express input as an array of blocks
+    
+    decode(input);
     
     return 0;
 }
@@ -75,7 +93,7 @@ void encode(largeBlock input, int len, FILE *ptr) {
 
         // Loop through each message bit in this block to populate final block //
         for (int j = 0; j < bits; j++) {
-            
+
             // Skip bit if reserved for parity bit //
             if ((j & (j - 1)) == 0) { // Check if j is a power of two or 0
                 skipped++;
@@ -112,9 +130,9 @@ void encode(largeBlock input, int len, FILE *ptr) {
 
         // Output final block //
         printBlock(thisBlock);
-        
+
         // Add block to encoded blocks //
-	    encoded[i] = thisBlock;
+        encoded[i] = thisBlock;
     }
     
     // Write encoded message to file //
