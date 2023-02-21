@@ -205,7 +205,7 @@ void encode(char *input, int len, FILE *ptr) {
             }
 
             // Add parity bit to final block //
-            thisBlock = modifyBit(thisBlock, (int) pow(2,k-1) , getBit(parityBits, sizeof(block)*8-skipped+k));
+            thisBlock = modifyBit(thisBlock, (int) pow(2, skipped-k-1) , getBit(parityBits, sizeof(block)*8-skipped+k));
         }
 
         // Add overall parity bit (total parity of onCount) //
