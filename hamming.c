@@ -12,9 +12,10 @@
 
 // Function prototypes
 void decode(block input[]);                         // Function used to decode Hamming code
-void encode(largeBlock input, int len, FILE *ptr);  // Function used to encode plaintext
+void encode(char *input, int len, FILE *ptr);       // Function used to encode plaintext
 void printBlock(block i);                           // Function used to pretty print a block
 bit getBit(block b, int i);                         // Function used to get a specific bit of a block
+bit getCharBit(char b, int i);                      // Function used to get a specific bit of a char
 block toggleBit(block b, int i);                    // Function used to toggle a specific bit of a block
 block modifyBit(block n, int p, bit b);             // Function used to modify a bit to a specific value
 int multipleXor(int *indicies, int len);            // Function used to XOR all the elements of a list together (used to locate error and determine values of parity bits)
@@ -36,11 +37,11 @@ int main (int argc, char **argv) {
     // Check which command was given //
     if (strcmp(command, "decode") == 0) {
         
-	    // Default deocode filename //
+        // Default input filename //
         char filename[32] = "out.hm";
 
         // If there is a 2nd arguement //
-	    if (argv[2] != NULL) {
+        if (argv[2] != NULL) {
 	    
 	    // If the second arguement is -i (input file) //
             if (strcmp(argv[2], "-i") == 0) {
@@ -79,23 +80,63 @@ int main (int argc, char **argv) {
         decode(input);
     }
 
-    return 0;
+    if (strcmp(command, "encode") == 0) {
+        
+        // Default output filename //
+        char wfilename[32] = "out.hm";
+        
+        // Input filename //
+        char rfilename[32];
 
-    // Encode test //
+        // If there is no 2nd arguement //
+        if (argv[2] == NULL) {
+            printf("Encode must have an input file");
+            return 1;
+        }
 
-    largeBlock bits = 0b00101110101; // Ensures first parity bit is a 1
+        // If the second arguement is -i (input file) //
+        if (strcmp(argv[2], "-i") == 0) {
 
-    // Open file for writing //
-    FILE *wptr = fopen("test.hm","wb");
+            // Change read filename to given file //
+            strcpy(rfilename, argv[3]);
+        }
+        
+        // Check if file exists //
+        if (access(rfilename, F_OK) != 0) {
+            printf("File \"%s\" does not exist. Aborting.\n", rfilename);
+            return 1;
+        }
 
-    encode(bits, 11, wptr);
+        printf("Encoding file \"%s\" to \"%s\"\n", rfilename, wfilename);
 
-    putchar('\n');
+	    // Open file //
+        FILE *ptr = fopen(rfilename,"r");
+
+        // Seek to end of file //
+        fseek(ptr, 0L, SEEK_END);
+
+        // Determine length of the file in bytes //
+        int sz = ftell(ptr);
+
+        // Go back to start of file //
+        rewind(ptr);
+
+        // Initialise hamming code input variable //
+        unsigned char input[sz];
+
+        // Read hamming code from file to variable //
+        fread(input, 1, sz, ptr);
+	
+        // Open file for writing //
+        FILE *wptr = fopen(wfilename,"wb");
+
+        encode(input, sz*8, wptr);
+    }
     
     return 0;
 }
 
-void encode(largeBlock input, int len, FILE *ptr) {
+void encode(char *input, int len, FILE *ptr) {
 
     // Amount of bits in a block //
     int bits = sizeof(block) * 8;
@@ -111,10 +152,7 @@ void encode(largeBlock input, int len, FILE *ptr) {
 
     // Loop through each block //
     for (int i = 0; i < blocks; i++) {
-        
-        // Get message bits for this block //
-	    block thisMsg = (input >> i*messageBits) & ((1 << messageBits) -1);
-        
+
         // Final encoded block variable //
         block thisBlock = 0;
         
@@ -135,15 +173,24 @@ void encode(largeBlock input, int len, FILE *ptr) {
                 skipped++;
                 continue;
             }
+            
+            // Current overall bit number //
+            int currentBit = i*messageBits + (j-skipped);
+            
+            // Current character //
+            int currentChar = currentBit/(sizeof(char)*8); // int division
+            
+            // Value of current bit //
+            bit thisBit = currentBit < len*sizeof(char)*8 ? getCharBit(input[currentChar], currentBit-currentChar*8) : 0;
 
             // If bit is "on", add to onList and onCount //
-            if (getBit(thisMsg, j-skipped)) {
+            if (thisBit) {
                 onList[onCount] = j;
                 onCount++;
             }
             
             // Populate final message block //
-            thisBlock = modifyBit(thisBlock, j, getBit(thisMsg, j-skipped));
+            thisBlock = modifyBit(thisBlock, j, thisBit);
         }
 
         // Calculate values of parity bits //
@@ -234,6 +281,10 @@ block modifyBit(block n, int p, bit b) {
 
 bit getBit(block b, int i) {
     return (b << i) & (int) pow(2, (sizeof(block)*8-1));
+}
+
+bit getCharBit(char b, int i) {
+    return (b << i) & (int) pow(2, (sizeof(char)*8-1));
 }
 
 block toggleBit(block b, int i) {
