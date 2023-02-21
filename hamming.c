@@ -7,7 +7,6 @@
 
 // Definitions
 #define block unsigned short    // 16 bits
-#define largeBlock unsigned int // 32 bits
 #define bit bool                // 8 bits (only last is used)
 
 // Function prototypes
