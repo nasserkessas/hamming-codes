@@ -52,7 +52,7 @@ int main (int argc, char **argv) {
         FILE *ptr;
 
         // Check if file exists and open file //
-        if (fopen(filename,"rb")) {
+        if (!(ptr = fopen(filename,"rb"))) {
             printf("File \"%s\" cannot be opened (does the file exist?). Aborting.\n", filename);
             return 1;
         }
@@ -101,7 +101,7 @@ int main (int argc, char **argv) {
         FILE *ptr;
 
         // Check if file exists and open file //
-        if (ptr = fopen(rfilename,"r")) {
+        if (!(ptr = fopen(rfilename,"r"))) {
             printf("File \"%s\" cannot be opened (does the file exist?). Aborting.\n", rfilename);
             return 1;
         }
