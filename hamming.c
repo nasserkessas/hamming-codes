@@ -11,7 +11,7 @@
 #define bit bool                // 8 bits (only last is used)
 
 // Function prototypes
-void decode(block input[]);                         // Function used to decode Hamming code
+void decode(block input[], int len);                // Function used to decode Hamming code
 void encode(char *input, int len, FILE *ptr);       // Function used to encode plaintext
 void printBlock(block i);                           // Function used to pretty print a block
 bit getBit(block b, int i);                         // Function used to get a specific bit of a block
@@ -77,7 +77,7 @@ int main (int argc, char **argv) {
         // Read hamming code from file to variable //
         fread(input, sizeof(block), sz/sizeof(block), ptr);    
 
-        decode(input);
+        decode(input, sz);
     }
 
     if (strcmp(command, "encode") == 0) {
@@ -153,6 +153,8 @@ void encode(char *input, int len, FILE *ptr) {
     // Loop through each block //
     for (int i = 0; i < blocks; i++) {
 
+        printf("On Block %d:\n", i);
+
         // Final encoded block variable //
         block thisBlock = 0;
         
@@ -213,6 +215,7 @@ void encode(char *input, int len, FILE *ptr) {
 
         // Output final block //
         printBlock(thisBlock);
+        putchar('\n');
 
         // Add block to encoded blocks //
         encoded[i] = thisBlock;
@@ -222,48 +225,55 @@ void encode(char *input, int len, FILE *ptr) {
     fwrite(encoded, sizeof(block), blocks, ptr);
 }
 
-void decode(block input[]) {
+void decode(block input[], int len) {
 
     // Amount of bits in a block //
     int bits = sizeof(block) * 8;
 
-    // Print initial block //
-    printBlock(input[0]);
+    for (int b = 0; b < (len/sizeof(block)); b++) {
 
-    // Count of how many bits are "on" //
-    int onCount = 0;
-    
-    // Array of "on" bits //
-    int onList[bits];
+        printf("On Block %d:\n", b);
 
-    // Populate onCount and onList //
-    for (int i = 1; i < bits; i++) {
-	getBit(input[0], i);
-	if (getBit(input[0], i)) {
-        onList[onCount] = i;
-	    onCount++;
-	    }
-    }
+        // Print initial block //
+        printBlock(input[b]);
 
-    // Check for single errors //
-    int errorLoc = multipleXor(onList, onCount);
-
-    if (errorLoc) {
+        // Count of how many bits are "on" //
+        int onCount = 0;
         
-        // Check for multiple errors //
-        if (!(onCount & 1 ^ getBit(input[0], 0))) { // last bit of onCount (total parity) XOR first bit of block (parity bit)
-            printf("\nMore than one error detected. Aborting.\n");
-            exit(1);
+        // Array of "on" bits //
+        int onList[bits];
+
+        // Populate onCount and onList //
+        for (int i = 1; i < bits; i++) {
+        getBit(input[b], i);
+        if (getBit(input[b], i)) {
+            onList[onCount] = i;
+            onCount++;
+            }
         }
-        
-        // Flip error bit //
-        else {
-            printf("\nDetected error at position %d, flipping bit.\n", errorLoc);
-            input[0] = toggleBit(input[0], (bits-1) - errorLoc);
+
+        // Check for single errors //
+        int errorLoc = multipleXor(onList, onCount);
+
+        if (errorLoc) {
             
-            // Re-print block for comparison //
-            printBlock(input[0]);
+            // Check for multiple errors //
+            if (!(onCount & 1 ^ getBit(input[b], 0))) { // last bit of onCount (total parity) XOR first bit of block (parity bit)
+                printf("\nMore than one error detected. Aborting.\n");
+                exit(1);
+            }
+            
+            // Flip error bit //
+            else {
+                printf("\nDetected error at position %d, flipping bit.\n", errorLoc);
+                input[b] = toggleBit(input[b], (bits-1) - errorLoc);
+                
+                // Re-print block for comparison //
+                printBlock(input[b]);
+            }
         }
+        
+        putchar('\n');
     }
 }
 
