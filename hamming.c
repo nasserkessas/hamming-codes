@@ -22,25 +22,36 @@ int multipleXor(int *indicies, int len);            // Function used to XOR all 
 
 int main (int argc, char **argv) {
 
+    // Path of file //
     char *path = argv[0];
 
+    // If no arguements given //
     if (argc == 1) {
         return 1; // usage function later
     }
     
+    // Command //
     char *command = argv[1];
 
+    // Check which command was given //
     if (strcmp(command, "decode") == 0) {
         
+	    // Default deocode filename //
         char filename[32] = "out.hm";
 
-        if (argv[2] != NULL) {
+        // If there is a 2nd arguement //
+	    if (argv[2] != NULL) {
+	    
+	    // If the second arguement is -i (input file) //
             if (strcmp(argv[2], "-i") == 0) {
+
+		// Change read filename to given file //
                 strcpy(filename, argv[3]);
             }
         }
 
-        if (access(filename, F_OK) != 0) { // File does not exist
+	    // Check if file exists //
+        if (access(filename, F_OK) != 0) {
             printf("File \"%s\" does not exist. Aborting.\n", filename);
             return 1;
         }
