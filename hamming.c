@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
-#include <unistd.h>
 
 // Definitions
 #define block unsigned short    // 16 bits
@@ -45,21 +44,20 @@ int main (int argc, char **argv) {
 	    // If the second arguement is -i (input file) //
             if (strcmp(argv[2], "-i") == 0) {
 
-		// Change read filename to given file //
+                // Change read filename to given file //
                 strcpy(filename, argv[3]);
             }
         }
 
-	    // Check if file exists //
-        if (access(filename, F_OK) != 0) {
-            printf("File \"%s\" does not exist. Aborting.\n", filename);
+        FILE *ptr;
+
+        // Check if file exists and open file //
+        if (fopen(filename,"rb")) {
+            printf("File \"%s\" cannot be opened (does the file exist?). Aborting.\n", filename);
             return 1;
         }
 
         printf("Decoding file \"%s\"\n", filename);
-
-        // Open file //
-        FILE *ptr = fopen(filename,"rb");
 
         // Seek to end of file //
         fseek(ptr, 0L, SEEK_END);
@@ -100,16 +98,15 @@ int main (int argc, char **argv) {
             strcpy(rfilename, argv[3]);
         }
         
-        // Check if file exists //
-        if (access(rfilename, F_OK) != 0) {
-            printf("File \"%s\" does not exist. Aborting.\n", rfilename);
+        FILE *ptr;
+
+        // Check if file exists and open file //
+        if (ptr = fopen(rfilename,"r")) {
+            printf("File \"%s\" cannot be opened (does the file exist?). Aborting.\n", rfilename);
             return 1;
         }
 
         printf("Encoding file \"%s\" to \"%s\"\n", rfilename, wfilename);
-
-	    // Open file //
-        FILE *ptr = fopen(rfilename,"r");
 
         // Seek to end of file //
         fseek(ptr, 0L, SEEK_END);
