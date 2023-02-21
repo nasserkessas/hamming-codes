@@ -113,8 +113,8 @@ void encode(largeBlock input, int len, FILE *ptr) {
     for (int i = 0; i < blocks; i++) {
         
         // Get message bits for this block //
-        block thisMsg = ((input & ((((int) pow(2, messageBits)-1) << ((blocks-1)*messageBits)) >> (i*messageBits))) >> ((blocks-i-1)*messageBits)) << (bits - messageBits);
-
+	    block thisMsg = (input >> i*messageBits) & ((1 << messageBits) -1);
+        
         // Final encoded block variable //
         block thisBlock = 0;
         
