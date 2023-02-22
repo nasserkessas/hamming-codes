@@ -19,6 +19,9 @@ block modifyBit(block n, int p, bit b);             // Function used to modify a
 char modifyCharBit(char n, int p, bit b);           // Function used to modify a bit of a char to a specific value
 int multipleXor(int *indicies, int len);            // Function used to XOR all the elements of a list together (used to locate error and determine values of parity bits)
 
+void usage(char *path) {
+    printf("\nUsage: %s [COMMANDS]\n\n\tencode \tEncodes plaintext to hamming code. Outputs in file \"out.hm\"\n\t\t-i \"FILENAME\" \tReads plaintext from FILENAME (default is \"in.txt\")\n\n\tdecode \tDecodes hamming code and prints original plaintext\n\t\t-i \"FILENAME\" \tReads hamming code from FILENAME (default is \"out.hm\")\n\n", path);
+}
 
 int main (int argc, char **argv) {
 
@@ -27,7 +30,8 @@ int main (int argc, char **argv) {
 
     // If no arguements given //
     if (argc == 1) {
-        return 1; // usage function later
+        usage(path);
+        return 1;
     }
     
     // Command //
@@ -84,7 +88,7 @@ int main (int argc, char **argv) {
         char wfilename[32] = "out.hm";
         
         // Input filename //
-        char rfilename[32];
+        char rfilename[32] = "in.txt";
 
         // If there is no 2nd arguement //
         if (argv[2] == NULL) {
