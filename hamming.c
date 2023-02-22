@@ -16,6 +16,7 @@ bit getBit(block b, int i);                         // Function used to get a sp
 bit getCharBit(char b, int i);                      // Function used to get a specific bit of a char
 block toggleBit(block b, int i);                    // Function used to toggle a specific bit of a block
 block modifyBit(block n, int p, bit b);             // Function used to modify a bit to a specific value
+char modifyCharBit(char n, int p, bit b);           // Function used to modify a bit of a char to a specific value
 int multipleXor(int *indicies, int len);            // Function used to XOR all the elements of a list together (used to locate error and determine values of parity bits)
 
 
@@ -271,6 +272,42 @@ void decode(block input[], int len) {
         
         putchar('\n');
     }
+
+    // Initialise output string //
+    char output[len];
+
+    // Amount of bits per block used to carry the message //
+    int messageBits = bits - log2(bits) - 1;
+
+    for (int i = 0; i < len/sizeof(block); i++) {
+
+        // Initialise variable to stor amount of parity bits passed //
+        int skipped = 0;
+
+        // Loop through each message bit in this block to populate final block //
+        for (int j = 0; j < bits; j++) {
+
+            // Skip bit if reserved for parity bit //
+            if ((j & (j - 1)) == 0) { // Check if j is a power of two or 0
+                skipped++;
+                continue;
+            }
+
+            // Current overall bit number //
+            int currentBit = i*messageBits + (j-skipped);
+
+            // Current character //
+            int currentChar = currentBit/(sizeof(char)*8); // int division
+
+            // Value of current bit //
+            bit thisBit = getBit(input[i], j);
+
+            // Populate final decoded character //
+            output[currentChar] = modifyCharBit(output[currentChar], currentBit-currentChar*sizeof(char)*8, thisBit);
+        }
+    }
+
+    printf("\nDecoded hamming code: \"%s\"\n", output);
 }
 
 int multipleXor(int *indicies, int len) {
@@ -283,6 +320,10 @@ int multipleXor(int *indicies, int len) {
 
 block modifyBit(block n, int p, bit b) {
     return ((n & ~(1 << (sizeof(block)*8-1-p))) | (b << (sizeof(block)*8-1-p)));
+}
+
+char modifyCharBit(char n, int p, bit b) {
+    return ((n & ~(1 << (sizeof(char)*8-1-p))) | (b << (sizeof(char)*8-1-p)));
 }
 
 bit getBit(block b, int i) {
