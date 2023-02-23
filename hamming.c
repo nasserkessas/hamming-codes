@@ -9,7 +9,7 @@
 #define bit bool                // 8 bits (only last is used)
 
 // Function prototypes
-void decode(block input[], int len);                    // Function used to decode Hamming code
+void decode(block input[], int len, FILE *ptr);         // Function used to decode Hamming code
 void encode(char *input, int len, FILE *ptr);           // Function used to encode plaintext
 void printBlock(block i);                               // Function used to pretty print a block
 bit getBit(block b, int i);                             // Function used to get a specific bit of a block
@@ -42,7 +42,10 @@ int main (int argc, char **argv) {
     if (strcmp(command, "decode") == 0) {
         
         // Default input filename //
-        char filename[32] = "out.hm";
+        char rfilename[32] = "out.hm";
+
+        // Default output filename //
+        char wfilename[32] = "out.txt";
 
         // Check index of -i arguement //
         int inputIndex = inList(argv, "-i", argc);
@@ -51,35 +54,53 @@ int main (int argc, char **argv) {
         if (inputIndex) {
 
             // Change read filename to given file //
-            strcpy(filename, argv[inputIndex+1]);
+            strcpy(rfilename, argv[inputIndex+1]);
         }
 
-        FILE *ptr;
+        // Check index of -o arguement //
+        int outputIndex = inList(argv, "-o", argc);
 
-        // Check if file exists and open file //
-        if (!(ptr = fopen(filename,"rb"))) {
-            printf("File \"%s\" cannot be opened (does the file exist?). Aborting.\n", filename);
+        // If the an arguement is -o (output file) //
+        if (outputIndex) {
+
+            // Change read filename to given file //
+            strcpy(wfilename, argv[outputIndex+1]);
+        }
+
+        FILE *rptr;
+        FILE *wptr;
+
+        // Check if input file exists and open file //
+        if (!(rptr = fopen(rfilename,"r"))) {
+            printf("File \"%s\" cannot be opened (does the file exist?). Aborting.\n", rfilename);
             return 1;
         }
 
-        printf("Decoding file \"%s\"\n", filename);
+        // Check if output file exists and open file //
+        if (!(wptr = fopen(wfilename,"wb"))) {
+            printf("File \"%s\" cannot be opened (does the file exist?). Aborting.\n", wfilename);
+            return 1;
+        }
+
+        printf("Decoding file \"%s\" to \"%s\"\n", rfilename, wfilename);
 
         // Seek to end of file //
-        fseek(ptr, 0L, SEEK_END);
+        fseek(rptr, 0L, SEEK_END);
 
         // Determine length of the file in bytes //
-        int sz = ftell(ptr);
+        int sz = ftell(rptr);
 
         // Go back to start of file //
-        rewind(ptr);
+        rewind(rptr);
 
         // Initialise hamming code input variable //
         block input[sz];
 
         // Read hamming code from file to variable //
-        fread(input, sizeof(block), sz/sizeof(block), ptr);    
+        fread(input, sizeof(block), sz/sizeof(block), rptr);    
 
-        decode(input, sz);
+
+        decode(input, sz, wptr);
     }
 
     if (strcmp(command, "encode") == 0) {
@@ -237,7 +258,7 @@ void encode(char *input, int len, FILE *ptr) {
     fwrite(encoded, sizeof(block), blocks, ptr);
 }
 
-void decode(block input[], int len) {
+void decode(block input[], int len, FILE *ptr) {
 
     // Amount of bits in a block //
     int bits = sizeof(block) * 8;
@@ -294,9 +315,11 @@ void decode(block input[], int len) {
     // Amount of bits per block used to carry the message //
     int messageBits = bits - log2(bits) - 1;
 
+    int currentBit, currentChar;
+
     for (int i = 0; i < len/sizeof(block); i++) {
 
-        // Initialise variable to stor amount of parity bits passed //
+        // Initialise variable to store amount of parity bits passed //
         int skipped = 0;
 
         // Loop through each message bit in this block to populate final block //
@@ -309,10 +332,10 @@ void decode(block input[], int len) {
             }
 
             // Current overall bit number //
-            int currentBit = i*messageBits + (j-skipped);
+            currentBit = i*messageBits + (j-skipped);
 
             // Current character //
-            int currentChar = currentBit/(sizeof(char)*8); // int division
+            currentChar = currentBit/(sizeof(char)*8); // int division
 
             // Value of current bit //
             bit thisBit = getBit(input[i], j);
@@ -322,7 +345,8 @@ void decode(block input[], int len) {
         }
     }
 
-    printf("\nDecoded hamming code: \"%s\"\n", output);
+    // printf("\nDecoded hamming code: \"%s\"\n", output);
+    fwrite(output, 1, currentBit-currentChar*8 > 0 ? len-1 : len, ptr);
 }
 
 int multipleXor(int *indicies, int len) {
