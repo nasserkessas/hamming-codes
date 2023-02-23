@@ -99,34 +99,48 @@ int main (int argc, char **argv) {
             // Change read filename to given file //
             strcpy(rfilename, argv[inputIndex+1]);
         }
-        
-        FILE *ptr;
 
-        // Check if file exists and open file //
-        if (!(ptr = fopen(rfilename,"r"))) {
+        int outputIndex = inList(argv, "-o", argc);
+
+        // If the an arguement is -o (output file) //
+        if (outputIndex) {
+
+            // Change write filename to given file //
+            strcpy(wfilename, argv[outputIndex+1]);
+        }
+        
+        FILE *rptr;
+        FILE *wptr;
+
+        // Check if input file exists and open file //
+        if (!(rptr = fopen(rfilename,"r"))) {
             printf("File \"%s\" cannot be opened (does the file exist?). Aborting.\n", rfilename);
+            return 1;
+        }
+
+        // Check if output file exists and open file //
+        if (!(wptr = fopen(wfilename,"wb"))) {
+            printf("File \"%s\" cannot be opened (does the file exist?). Aborting.\n", wfilename);
             return 1;
         }
 
         printf("Encoding file \"%s\" to \"%s\"\n", rfilename, wfilename);
 
         // Seek to end of file //
-        fseek(ptr, 0L, SEEK_END);
+        fseek(rptr, 0L, SEEK_END);
 
         // Determine length of the file in bytes //
-        int sz = ftell(ptr);
+        int sz = ftell(rptr);
 
         // Go back to start of file //
-        rewind(ptr);
+        rewind(rptr);
 
         // Initialise hamming code input variable //
         unsigned char input[sz];
 
         // Read hamming code from file to variable //
-        fread(input, 1, sz, ptr);
+        fread(input, 1, sz, rptr);
 	
-        // Open file for writing //
-        FILE *wptr = fopen(wfilename,"wb");
 
         encode(input, sz*8, wptr);
     }
