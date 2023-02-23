@@ -90,12 +90,6 @@ int main (int argc, char **argv) {
         // Input filename //
         char rfilename[32] = "in.txt";
 
-        // If there is no 2nd arguement //
-        if (argv[2] == NULL) {
-            printf("Encode must have an input file");
-            return 1;
-        }
-
         // Check index of -i arguement //
         int inputIndex = inList(argv, "-i", argc);
 
