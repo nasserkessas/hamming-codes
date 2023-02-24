@@ -179,11 +179,13 @@ void encode(char *input, int len, FILE *ptr) {
     // Amount of blocks needed to encode message //
     int blocks = ceil((float) len / messageBits);
 
+    printf("%d\n", len/8);
+
     // Array of encoded blocks //
-    block encoded[blocks];
+    block encoded[blocks+1];
 
     // Loop through each block //
-    for (int i = 0; i < blocks; i++) {
+    for (int i = 0; i < blocks+1; i++) {
 
         printf("On Block %d:\n", i);
 
@@ -207,17 +209,26 @@ void encode(char *input, int len, FILE *ptr) {
                 skipped++;
                 continue;
             }
-            
-            // Current overall bit number //
-            int currentBit = i*messageBits + (j-skipped);
-            
-            // Current character //
-            int currentChar = currentBit/(sizeof(char)*8); // int division
-            
-            // Value of current bit //
-            bit thisBit = currentBit < len*sizeof(char)*8 ? getCharBit(input[currentChar], currentBit-currentChar*8) : 0;
 
-            // If bit is "on", add to onList and onCount //
+            bit thisBit;
+            
+            if (i != blocks) {
+
+                // Current overall bit number //
+                int currentBit = i*messageBits + (j-skipped);
+                
+                // Current character //
+                int currentChar = currentBit/(sizeof(char)*8); // int division
+                
+                // Value of current bit //
+                thisBit = currentBit < len*sizeof(char)*8 ? getCharBit(input[currentChar], currentBit-currentChar*8) : 0;
+            }
+
+            else {
+                thisBit = getBit(len/8, j-skipped+(sizeof(block)*8-messageBits));
+            }
+
+	    // If bit is "on", add to onList and onCount //
             if (thisBit) {
                 onList[onCount] = j;
                 onCount++;
@@ -254,7 +265,7 @@ void encode(char *input, int len, FILE *ptr) {
     }
     
     // Write encoded message to file //
-    fwrite(encoded, sizeof(block), blocks, ptr);
+    fwrite(encoded, sizeof(block), blocks+1, ptr);
 }
 
 void decode(block input[], int len, FILE *ptr) {
@@ -316,6 +327,8 @@ void decode(block input[], int len, FILE *ptr) {
 
     int currentBit, currentChar;
 
+    int chars = 0;
+
     for (int i = 0; i < len/sizeof(block); i++) {
 
         // Initialise variable to store amount of parity bits passed //
@@ -345,20 +358,24 @@ void decode(block input[], int len, FILE *ptr) {
 
             printf("%d", thisBit);
 
-            // Populate final decoded character //
-            output[currentChar] = modifyCharBit(output[currentChar], currentBit-currentChar*sizeof(char)*8, thisBit);
+            if (i != len/sizeof(block)-1) {
+	        
+                // Populate final decoded character //
+                output[currentChar] = modifyCharBit(output[currentChar], currentBit-currentChar*sizeof(char)*8, thisBit);
+            }
+
+            else {
+                chars = modifyBit(chars, j-skipped+(sizeof(block)*8-messageBits), thisBit);
+            }
+
         }
     }
 
+    printf("Chars: %d\n", chars);
+    
     printf("\nDecoded hamming code: \"%s\"\n", output);
 
-    bool removeLastChar = false;
-
-    if (currentBit-currentChar*8 == 0) {
-        removeLastChar = true;
-    }
-
-    fwrite(output, 1, currentChar-removeLastChar, ptr);    
+    fwrite(output, 1, chars, ptr);    
 }
 
 int multipleXor(int *indicies, int len) {
