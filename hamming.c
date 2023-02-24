@@ -162,7 +162,6 @@ int main (int argc, char **argv) {
         // Read hamming code from file to variable //
         fread(input, 1, sz, rptr);
 	
-
         encode(input, sz*8, wptr);
     }
     
@@ -178,7 +177,7 @@ void encode(char *input, int len, FILE *ptr) {
     int messageBits = bits - log2(bits) - 1;
 
     // Amount of blocks needed to encode message //
-    int blocks = ceil(len / messageBits);
+    int blocks = ceil((float) len / messageBits);
 
     // Array of encoded blocks //
     block encoded[blocks];
@@ -337,16 +336,29 @@ void decode(block input[], int len, FILE *ptr) {
             // Current character //
             currentChar = currentBit/(sizeof(char)*8); // int division
 
+            if (currentBit-currentChar*8 == 0) {
+                putchar(' ');
+            }
+
             // Value of current bit //
             bit thisBit = getBit(input[i], j);
+
+            printf("%d", thisBit);
 
             // Populate final decoded character //
             output[currentChar] = modifyCharBit(output[currentChar], currentBit-currentChar*sizeof(char)*8, thisBit);
         }
     }
 
-    // printf("\nDecoded hamming code: \"%s\"\n", output);
-    fwrite(output, 1, currentBit-currentChar*8 > 0 ? len-1 : len, ptr);
+    printf("\nDecoded hamming code: \"%s\"\n", output);
+
+    bool removeLastChar = false;
+
+    if (currentBit-currentChar*8 == 0) {
+        removeLastChar = true;
+    }
+
+    fwrite(output, 1, currentChar-removeLastChar, ptr);    
 }
 
 int multipleXor(int *indicies, int len) {
