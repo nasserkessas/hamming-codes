@@ -53,4 +53,16 @@ Decodes a hamming code file into plaintext.
 
 # Hamming code overview
 
+Hamming codes were invented in 1950 by Richard W. Hamming as a way of automatically correcting errors introduced by punched card readers. It makes use of strategically placed parity bits to detect up to two errors and correct up to one error.
 
+This repository currently focuses on 16-11 hamming codes, so these will be used to demonstrate.
+
+16-11 hamming codes use 16 bits (2 bytes) to store 11 message bits with 5 bits reserved for parity checks. The parity bits are in positions that are powers of two like the following.
+
+|`0`|`1`|`2`| 3 |
+|:-:|:-:|:-:|:-:|
+|`4`| **5** | **6** | **7** |
+|`8`| **9** | **10** | **11** |
+| **12** | **13** | **14** | **15** |
+
+Where `highlighted` positions are reserved parity bits.
