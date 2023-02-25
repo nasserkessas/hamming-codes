@@ -6,7 +6,7 @@ More functionality coming soon.
 
 ## Description
 
-This C script encodes and decodes extended hamming code in the command line.
+This C script encodes and decodes extended hamming code in the command line. [See below](##-Hamming-code-overview) for more background and how it works.
 
 ## Usage
 
@@ -52,3 +52,7 @@ Decodes a hamming code file into plaintext.
 ```sh
 ./hamming decode -i out.hm -o out.txt
 ```
+
+## Hamming code overview
+
+
