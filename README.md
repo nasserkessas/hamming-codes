@@ -4,6 +4,10 @@
 
 More functionality coming soon.
 
+## Description
+
+This C script can encode and decode to extended hamming code in the command line.
+
 ## Usage
 
 ### Build
