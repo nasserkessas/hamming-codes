@@ -4,30 +4,28 @@
 
 More functionality coming soon.
 
-## Description
+This C script encodes and decodes extended hamming code in the command line. [See below](https://github.com/nasserkessas/hamming-codes/edit/master/README.md#Hamming-code-overview) for more background and how it works.
 
-This C script encodes and decodes extended hamming code in the command line. [See below](##-Hamming-code-overview) for more background and how it works.
+# Usage
 
-## Usage
-
-### Build
+## Build
 
 ```sh
 gcc -o hamming hamming.c
 ```
 
-### Run
+## Run
 ```sh
 ./hamming
 ```
 
-### Commands
+## Commands
 
-#### Encode
+### Encode
 
 Encodes a file into hamming code.
 
-##### Options
+#### Options
 
  + `-i "FILENAME"` [REQUIRED] - Input filename. Reads plaintext from FILENAME.
  + `-o "FILENAME"` [OPTIONAL] - Output filename. Outputs hamming code to FILENAME. Defaults to `out.hm`.
@@ -38,11 +36,11 @@ For example:
 ./hamming encode -i in.txt -o out.hm
 ```
 
-#### Decode
+### Decode
 
 Decodes a hamming code file into plaintext.
 
-##### Options
+#### Options
 
  + `-i "FILENAME"` [OPTIONAL] - Input filename. Reads hamming code from FILENAME. Defaults to `out.hm`.
  + `-o "FILENAME"` [OPTIONAL] - Output filename. Outputs plaintext to FILENAME. Defaults to `out.txt`.
@@ -53,6 +51,6 @@ Decodes a hamming code file into plaintext.
 ./hamming decode -i out.hm -o out.txt
 ```
 
-## Hamming code overview
+# Hamming code overview
 
 
