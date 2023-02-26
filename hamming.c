@@ -9,15 +9,15 @@
 #define bit bool                // 8 bits (only last is used)
 
 // Function prototypes
-void decode(block input[], int len, FILE *ptr);         // Function used to decode Hamming code
-void encode(char *input, int len, FILE *ptr);           // Function used to encode plaintext
-void printBlock(block i);                               // Function used to pretty print a block
-bit getBit(block b, int i);                             // Function used to get a specific bit of a block
-bit getCharBit(char b, int i);                          // Function used to get a specific bit of a char
-block toggleBit(block b, int i);                        // Function used to toggle a specific bit of a block
-block modifyBit(block n, int p, bit b);                 // Function used to modify a bit to a specific value
-char modifyCharBit(char n, int p, bit b);               // Function used to modify a bit of a char to a specific value
-int multipleXor(int *indicies, int len);                // Function used to XOR all the elements of a list together (used to locate error and determine values of parity bits)
+void decode(block input[], int len, FILE *ptr);          // Function used to decode Hamming code
+void encode(char *input, int len, FILE *ptr);            // Function used to encode plaintext
+void printBlock(block i);                                // Function used to pretty print a block
+bit getBit(block b, int i);                              // Function used to get a specific bit of a block
+bit getCharBit(char b, int i);                           // Function used to get a specific bit of a char
+block toggleBit(block b, int i);                         // Function used to toggle a specific bit of a block
+block modifyBit(block n, int p, bit b);                  // Function used to modify a bit to a specific value
+char modifyCharBit(char n, int p, bit b);                // Function used to modify a bit of a char to a specific value
+int multipleXor(int *indicies, int len);                 // Function used to XOR all the elements of a list together (used to locate error and determine values of parity bits)
 int inList(char **list, char *testString, int listLen);  // Function used to check if a test string is in a list 
 
 void usage(char *path) {
