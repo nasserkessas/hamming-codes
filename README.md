@@ -1,8 +1,8 @@
 # Hamming Code Encoder/Decoder
 
-:computer: Work in progress :computer:
+:computer: Main functionality completed, more coming soon :computer:
 
-More functionality coming soon.
+<br>
 
 This C script encodes and decodes extended hamming code in the command line. Hamming codes are a type of error detection and correction code, the type of code implemented in this example, extended hamming codes, have to ability to correct one error per block and detect two errors per block. [See below](https://github.com/nasserkessas/hamming-codes/edit/master/README.md#Hamming-code-overview) for more background and how it works.
 
