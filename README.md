@@ -1,6 +1,6 @@
 # Hamming Code Encoder/Decoder
 
-:computer: Main functionality completed, more coming soon :computer:
+:computer: Main functionality completed, more options etc. coming soon :computer:
 
 <br>
 
