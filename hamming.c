@@ -111,15 +111,14 @@ int main (int argc, char **argv) {
         // Input filename //
         char rfilename[32] = "in.txt";
 
-        // Check index of -i arguement //
-        int inputIndex = inList(argv, "-i", argc);
+        bool fileInput = true;
 
-        // If the an arguement is -i (input file) //
-        if (inputIndex) {
+        FILE *rptr;
+        FILE *wptr;
 
-            // Change read filename to given file //
-            strcpy(rfilename, argv[inputIndex+1]);
-        }
+        unsigned char *input;
+
+        int sz;
 
         int outputIndex = inList(argv, "-o", argc);
 
@@ -129,39 +128,74 @@ int main (int argc, char **argv) {
             // Change write filename to given file //
             strcpy(wfilename, argv[outputIndex+1]);
         }
-        
-        FILE *rptr;
-        FILE *wptr;
 
-        // Check if input file exists and open file //
-        if (!(rptr = fopen(rfilename,"r"))) {
-            printf("File \"%s\" cannot be opened (does the file exist?). Aborting.\n", rfilename);
-            return 1;
+        // Check index of -i arguement //
+        int inputIndex = inList(argv, "-i", argc);
+
+        // If the an arguement is -i (input file) //
+        if (inputIndex) {
+
+            if (inList(argv, "-t", argc)) {
+                printf("-i (input file) and -t (text input) options cannot be used in conjunction. Aborting");
+                return 1;
+            }
+
+            // Change read filename to given file //
+            strcpy(rfilename, argv[inputIndex+1]);
+
+            // Check if input file exists and open file //
+            if (!(rptr = fopen(rfilename,"r"))) {
+                printf("File \"%s\" cannot be opened (does the file exist?). Aborting.\n", rfilename);
+                return 1;
+            }
+
+            printf("Encoding file \"%s\" to \"%s\"\n", rfilename, wfilename);
         }
 
-        // Check if output file exists and open file //
-        if (!(wptr = fopen(wfilename,"wb"))) {
-            printf("File \"%s\" cannot be opened (does the file exist?). Aborting.\n", wfilename);
-            return 1;
+        // Check index of -t arguement //
+        int textIndex = inList(argv, "-t", argc);
+
+        // If the an arguement is -t (text input) //
+        if (textIndex) {
+
+            fileInput = false;
+            
+            char currentChar = argv[textIndex+1][0];
+
+            int index = 0;
+
+            while (currentChar != '\0') {
+                index++;
+                currentChar = argv[textIndex+1][index];
+            }
+
+            sz = index;
+            input = malloc(sz+1);
+
+            strcpy(input, argv[textIndex+1]);
+
+            printf("Encoding \"%s\" to \"%s\"\n", input, wfilename);
         }
 
-        printf("Encoding file \"%s\" to \"%s\"\n", rfilename, wfilename);
+        if (fileInput) {
+            // Seek to end of file //
+            fseek(rptr, 0L, SEEK_END);
 
-        // Seek to end of file //
-        fseek(rptr, 0L, SEEK_END);
+            // Determine length of the file in bytes //
+            sz = ftell(rptr);
 
-        // Determine length of the file in bytes //
-        int sz = ftell(rptr);
+            // Go back to start of file //
+            rewind(rptr);
 
-        // Go back to start of file //
-        rewind(rptr);
+            // Initialise hamming code input variable //
+            input = malloc(sz+1);
 
-        // Initialise hamming code input variable //
-        unsigned char input[sz];
+            // Read hamming code from file to variable //
+            fread(input, 1, sz, rptr);
+        }
 
-        // Read hamming code from file to variable //
-        fread(input, 1, sz, rptr);
-	
+        wptr = fopen(wfilename,"wb");
+
         encode(input, sz*8, wptr);
     }
     
@@ -178,8 +212,6 @@ void encode(char *input, int len, FILE *ptr) {
 
     // Amount of blocks needed to encode message //
     int blocks = ceil((float) len / messageBits);
-
-    printf("%d\n", len/8);
 
     // Array of encoded blocks //
     block encoded[blocks+1];
