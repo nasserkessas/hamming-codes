@@ -28,7 +28,7 @@ Encodes a file into hamming code.
 #### Options
 
  + `-i "FILENAME"` [OPTIONAL] - Input filename. Reads plaintext from FILENAME. Defaults to `in.txt`.
- + `-t "FILENAME"` [OPTIONAL] - Input text. Plaintext is read from commandline input. File input is default.
+ + `-t "TEXT"`     [OPTIONAL] - Input text. Plaintext is read from TEXT. File input is default.
  + `-o "FILENAME"` [OPTIONAL] - Output filename. Outputs hamming code to FILENAME. Defaults to `out.hm`.
  
 For example:
