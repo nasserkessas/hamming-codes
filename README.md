@@ -117,3 +117,17 @@ As only one error can be corrected and two can be detected, when selecting a ham
 ## Using XORs
 
 Setting the parity bits on the encoder's (sender's) end as well as detecting and locating an error on the decoder's (reciever's) end can be taken about another, much simpler way. The parity groups and bits positions were selected carefully and actually have much more meaning. The first parity group, if you look closer, is actually the group with a binary representation `___1` while the second is `__1_` and so on. So, by taking a big XOR (exclusive or; which outputs 1 if two bits are different) of all the bits' positions with a 1 (are "on"), we can spell out the error in binary due to this property.
+
+### Example
+
+Using the example from above, the bits that are "on" are bit 2 (`0010`), 4 (`0100`), 6 (`0110`), 7 (`0111`), 8 (`1000`), 10 (`1010`), 12 (`1100`), 13(`1101`) and 14 (`1110`). We can find the XOR of all of all these numbers (which is like finding the parity of each bit position) and the error location is spelled out in binary `1010`, which is the same 10 we found earlier!
+
+![image](https://user-images.githubusercontent.com/59720679/221393768-acba6088-8d3f-47ff-9758-1c4ee7bffb89.png)
+
+### Explanation
+
+The reason this works is because by setting the parity bits, we are effectively making this equation equal to 0. When make a 0 a 1, we are adding it into the equation when we decode making use effectively XORing 0 and the error position, giving us the position. Likewise, when we make a 1 a 0, we are removing the position from the equation, which affects the parity by the bits of the position, once again spelling out the error.
+
+### Setting parity bits with XORs
+
+This means that we could use the same method to set the parity bits when encding. After inputing the message bits into the grid, skipping the parity bits' positions, we can just do the same thing, taking the XOR of all the positions, and the result will tell us the values of the parity bits we need to set. The first bit (highest value) of the result tells us what to set the parity bit governing the positions with the highest bit a one (`1___`) and so on.
