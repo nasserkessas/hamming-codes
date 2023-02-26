@@ -55,13 +55,13 @@ Decodes a hamming code file into plaintext.
 
 ## Background
 
-Hamming codes were invented in 1950 by Richard W. Hamming as a way of automatically correcting errors introduced by punched card readers. It makes use of strategically placed parity bits to detect up to two errors and correct up to one error.
+Hamming codes were invented in 1950 by Richard W. Hamming as a way of automatically correcting errors introduced by punched card readers, although they can be used for any binary data that is susceptible to errors. It makes use of strategically placed parity bits to detect up to two errors and correct up to one error.
 
 ## Explanation
 
 This repository currently focuses on 16-11 hamming codes, so these will be used to demonstrate.
 
-16-11 hamming codes use 16 bits (2 bytes) to store 11 message bits with 5 bits reserved for parity checks. The parity bits are in positions that are powers of two like the following.
+16-11 hamming codes use 16 bits (2 bytes) to store 11 message bits with 5 bits reserved for parity checks. The parity bits are in positions that are powers of two (and 0, below for explanation) like the following.
 
 |`0`|`1`|`2`| 3 |
 |:-:|:-:|:-:|:-:|
@@ -94,11 +94,11 @@ Therefore, the error must have been in position 10, and the decoder can flip thi
 
 ### Parity bit at position 0
 
-The parity bit at position 0 is current unused as it cannot be used for message bits. However, extended hamming code makes use of this bit as an overall parity bit to detect cases with two errors. Therefore, if the subset parity bit checks find and error, but the overall parity bit says an error has not occured, there must have been two errors. However, hamming code is inable to detect more than 2 errors and incorrectly corrects the wrong bit in the case of an odd number of errors (3,5,7...) and detects a two error case with an even number of errors (2,4,6...).
+The parity bit at position 0 is currently unused as it cannot be used for message bits. However, extended hamming code makes use of this bit as an overall parity bit to detect cases with two errors. Therefore, if the subset parity bit checks find and error, but the overall parity bit says an error has not occured, there must have been two errors. However, hamming code is inable to detect more than 2 errors and incorrectly corrects the wrong bit in the case of an odd number of errors (3,5,7...) or detects a two error case with an even number of errors (2,4,6...).
 
 ## Hamming block sizes
 
-As only one error can be corrected and two can be detected, when selecting a hamming block size, it is a tradeoff between accuracy as smaller blocks are able to correct all the errors and space as the smaller the block size, the higher the percentage of redundant bits (see table below). This is only an example not intended to be used in practise so smaller block sizes have been used.
+As only one error can be corrected and two can be detected, when selecting a hamming block size, it is a tradeoff between accuracy ,as smaller blocks are able to correct all the errors, and space, as the smaller the block size, the higher the percentage of redundant bits (see table below). This is only an example not intended to be used in practise so smaller block sizes have been used, although the same code can be used for larger block sizes.
 
 | Block size (bits) | Redundant bits | Redundancy percentage |
 |:-----------------:|:--------------:|:---------------------:|
@@ -116,17 +116,17 @@ As only one error can be corrected and two can be detected, when selecting a ham
 
 ## Using XORs
 
-Setting the parity bits on the encoder's (sender's) end as well as detecting and locating an error on the decoder's (reciever's) end can be taken about another, much simpler way. The parity groups and bits positions were selected carefully and actually have much more meaning. The first parity group, if you look closer, is actually the group with a binary representation `___1` while the second is `__1_` and so on. So, by taking a big XOR (exclusive or; which outputs 1 if two bits are different) of all the bits' positions with a 1 (are "on"), we can spell out the error in binary due to this property.
+Setting the parity bits on the encoder's (sender's) end as well as detecting and locating an error on the decoder's (reciever's) end can be taken about another, much simpler way. The parity groups and bits positions were selected carefully and actually have much more meaning. The first parity group, if you look closely, is actually the group with a binary representation `___1` while the second is `__1_` and so on. So, by taking a big XOR (exclusive or; which outputs 1 if two bits are different, like the parity of the two bits) of all the bits' positions with a 1 (are "on"), we can spell out the error in binary due to this property.
 
 ### Example
 
-Using the example from above, the bits that are "on" are bit 2 (`0010`), 4 (`0100`), 6 (`0110`), 7 (`0111`), 8 (`1000`), 10 (`1010`), 12 (`1100`), 13(`1101`) and 14 (`1110`). We can find the XOR of all of all these numbers (which is like finding the parity of each bit position) and the error location is spelled out in binary `1010`, which is the same 10 we found earlier!
+Using the example from above, the bits that are "on" are bit 2 (`0010`), 4 (`0100`), 6 (`0110`), 7 (`0111`), 8 (`1000`), 10 (`1010`), 12 (`1100`), 13(`1101`) and 14 (`1110`). We can find the XOR of all of all these numbers (which is like finding the parity of each bit position) and the error location is spelled out in binary as `1010`, which is the same position 10 we found earlier!
 
 ![image](https://user-images.githubusercontent.com/59720679/221393768-acba6088-8d3f-47ff-9758-1c4ee7bffb89.png)
 
 ### Explanation
 
-The reason this works is because by setting the parity bits, we are effectively making this equation equal to 0. When make a 0 a 1, we are adding it into the equation when we decode making use effectively XORing 0 and the error position, giving us the position. Likewise, when we make a 1 a 0, we are removing the position from the equation, which affects the parity by the bits of the position, once again spelling out the error.
+The reason this works is because by setting the parity bits, we are effectively making this equation equal to 0. When make a 0 a 1, we are adding it into the equation when we decode making use effectively XORing 0 and the error position, giving us the position. Likewise, when we make a 1 a 0, we are removing the position from the equation, which affects the parity by the bits of the position (basically as 0-1=1 with binary), once again spelling out the error.
 
 ### Setting parity bits with XORs
 
