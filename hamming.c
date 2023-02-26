@@ -21,7 +21,7 @@ int multipleXor(int *indicies, int len);                 // Function used to XOR
 int inList(char **list, char *testString, int listLen);  // Function used to check if a test string is in a list 
 
 void usage(char *path) {
-    printf("\nUsage: %s [COMMANDS]\n\n\tencode \tEncodes plaintext to hamming code\n\t\t-i \"FILENAME\" \tReads plaintext from FILENAME (default is \"in.txt\")\n\t\t-o \"FILENAME\" \tOutputs hamming code to FILENAME (default is \"out.hm\")\n\n\tdecode \tDecodes hamming code and prints original plaintext\n\t\t-i \"FILENAME\" \tReads hamming code from FILENAME (default is \"out.hm\")\n\n", path);
+    printf("\nUsage: %s [COMMANDS]\n\n\tencode \tEncodes plaintext to hamming code\n\t\t-i \"FILENAME\" \tReads plaintext from file FILENAME (default is \"in.txt\")\n\t\t-o \"TEXT\" \tTEXT is read as plaintext input (file input is default)\n\t\t-o \"FILENAME\" \tOutputs hamming code to file FILENAME (default is \"out.hm\")\n\n\tdecode \tDecodes hamming code and prints original plaintext\n\t\t-i \"FILENAME\" \tReads hamming code from file FILENAME (default is \"out.hm\")\n\t\t-o \"FILENAME\" \tOutputs hamming code to file FILENAME (default is \"out.txt\")\n\n", path);
 }
 
 int main (int argc, char **argv) {
