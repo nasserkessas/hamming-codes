@@ -101,6 +101,8 @@ int main (int argc, char **argv) {
 
 
         decode(input, sz, wptr);
+
+        printf("\nDecoded hamming code saved to file \"%s\"\n", wfilename);
     }
 
     if (strcmp(command, "encode") == 0) {
@@ -211,7 +213,10 @@ int main (int argc, char **argv) {
         // Open write file //
         wptr = fopen(wfilename,"wb");
 
+
         encode(input, sz*8, wptr);
+
+        printf("\nEncoded hamming code saved to file \"%s\"\n", wfilename);
     }
     
     return 0;
@@ -396,7 +401,7 @@ void decode(block input[], int len, FILE *ptr) {
             // Current character //
             currentChar = currentBit/(sizeof(char)*8); // int division
 
-            if (currentBit-currentChar*8 == 0) {
+            if (currentBit-currentChar*8 == 0 && currentBit != 0) {
                 putchar(' ');
             }
 
@@ -418,9 +423,9 @@ void decode(block input[], int len, FILE *ptr) {
         }
     }
 
-    printf("Chars: %d\n", chars);
+    printf("\nChars: %d\n", chars);
     
-    printf("\nDecoded hamming code: \"%s\"\n", output);
+    printf("Decoded hamming code: \"%.*s\"\n", chars, output);
 
     fwrite(output, 1, chars, ptr);    
 }
