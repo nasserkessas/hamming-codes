@@ -111,15 +111,21 @@ int main (int argc, char **argv) {
         // Input filename //
         char rfilename[32] = "in.txt";
 
+        // Whether the input is a file or not //
         bool fileInput = true;
 
+        // Initialise file pointer variables //
         FILE *rptr;
         FILE *wptr;
 
+        // initialise input variable //
         unsigned char *input;
 
+        // initialise input size variable //
         int sz;
 
+
+        // Check index of -o arguement //
         int outputIndex = inList(argv, "-o", argc);
 
         // If the an arguement is -o (output file) //
@@ -135,6 +141,7 @@ int main (int argc, char **argv) {
         // If the an arguement is -i (input file) //
         if (inputIndex) {
 
+            // Abort if both -t and -i options are present //
             if (inList(argv, "-t", argc)) {
                 printf("-i (input file) and -t (text input) options cannot be used in conjunction. Aborting");
                 return 1;
@@ -160,18 +167,25 @@ int main (int argc, char **argv) {
 
             fileInput = false;
             
+            // Variable used to store current char when looping //
             char currentChar = argv[textIndex+1][0];
 
+            // Variable used to stor current char index when looping //
             int index = 0;
 
+            // Loop to find length of input text (stop when null char encountered) //
             while (currentChar != '\0') {
                 index++;
                 currentChar = argv[textIndex+1][index];
             }
 
+            // Make size equal to last index //
             sz = index;
+
+            // Allocate sz+1 bytes of memory to store input //
             input = malloc(sz+1);
 
+            // Copy text input to input variable //
             strcpy(input, argv[textIndex+1]);
 
             printf("Encoding \"%s\" to \"%s\"\n", input, wfilename);
@@ -194,6 +208,7 @@ int main (int argc, char **argv) {
             fread(input, 1, sz, rptr);
         }
 
+        // Open write file //
         wptr = fopen(wfilename,"wb");
 
         encode(input, sz*8, wptr);
