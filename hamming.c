@@ -170,7 +170,7 @@ int main (int argc, char **argv) {
             // Variable used to store current char when looping //
             char currentChar = argv[textIndex+1][0];
 
-            // Variable used to stor current char index when looping //
+            // Variable used to store current char index when looping //
             int index = 0;
 
             // Loop to find length of input text (stop when null char encountered) //
