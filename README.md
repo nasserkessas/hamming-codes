@@ -90,7 +90,7 @@ If the following block is recieved, the reciever can locate the error as follows
  + The third parity check (bit 4) says that the message bits in the second and fourth rows have a parity of 1 (are odd when added up), which they do, meaning the error is not in this subset.
  + Finally, the last parity check (bit 8) says that the message bits in the third and fourth rows have a parity of 1 (are odd when added up), which they do not, meaning the error is in this subset.
 
-Therefore, the error must have been in position 11, and the decoder can flip this bit accordingly.
+Therefore, the error must have been in position 10, and the decoder can flip this bit accordingly.
 
 ### Parity bit at position 0
 
@@ -112,3 +112,8 @@ As only one error can be corrected and two can be detected, when selecting a ham
 |512                |10              |1.95%                  |
 |...                |...             |...                    |
 |1048576            |21              |0.002%                 |
+
+
+## Using XORs
+
+Setting the parity bits on the encoder's (sender's) end as well as detecting and locating an error on the decoder's (reciever's) end can be taken about another, much simpler way. The parity groups and bits positions were selected carefully and actually have much more meaning. The first parity group, if you look closer, is actually the group with a binary representation `___1` while the second is `__1_` and so on. So, by taking a big XOR (exclusive or; which outputs 1 if two bits are different) of all the bits' positions with a 1 (are "on"), we can spell out the error in binary due to this property.
