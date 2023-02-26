@@ -11,7 +11,7 @@ This C script encodes and decodes extended hamming code in the command line. Ham
 ## Build
 
 ```sh
-gcc -o hamming hamming.c
+gcc -o hamming hamming.c -lm
 ```
 
 ## Run
