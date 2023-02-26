@@ -28,12 +28,19 @@ Encodes a file into hamming code.
 #### Options
 
  + `-i "FILENAME"` [OPTIONAL] - Input filename. Reads plaintext from FILENAME. Defaults to `in.txt`.
+ + `-t "FILENAME"` [OPTIONAL] - Input text. Plaintext is read from commandline input. File input is default.
  + `-o "FILENAME"` [OPTIONAL] - Output filename. Outputs hamming code to FILENAME. Defaults to `out.hm`.
  
 For example:
 
 ```sh
 ./hamming encode -i in.txt -o out.hm
+```
+
+or with input text:
+
+```sh
+./hamming encode -t "Hello world!" -o out.hm
 ```
 
 ### Decode
